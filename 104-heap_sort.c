@@ -1,87 +1,126 @@
 #include "sort.h"
 #include <stdio.h>
 
-/**
- * swap - utility function to swap to integers
- * @a: integer a
- * @b: integer b
- **/
-void swap(int *a, int *b)
-{
-	int t = *a;
-
-	*a = *b;
-	*b = t;
-}
+void build_max_heap(int *, size_t);
+void sift_down(int *, size_t, size_t);
+void heapify(int *, size_t, size_t, size_t);
+void swap(int *, size_t, size_t, size_t);
 
 /**
- * maxHeapify - The main function to heapify a Max Heap. The function
- * assumes that everything under given root (element at index idx)
- * is already heapified
- * @array: array
- * @size: size of the array for print
- * @idx: index
- * @n: size of the array to run
+ * heap_sort - sorts array of integers in ascending order
+ * @array: given array
+ * @size: size of array
+ *
+ * Description: this function sorts an array of integers
+ * in increasing order using the Heap sort algorithm
+ *
+ * Return: void
  */
-void maxHeapify(int *array, size_t size, int idx, size_t n)
-{
-	int largest = idx;		 /* Initialize largest as root*/
-	int left = 2 * idx + 1;	 /* left = (idx << 1) + 1*/
-	int right = 2 * idx + 2; /* right = (idx + 1) << 1*/
-
-	/* See if left child of root exists and is greater than root*/
-	if (left < (int)n && array[left] > array[largest])
-		largest = left;
-
-	/**
-	 * See if right child of root exists and is greater than
-     *the largest so far
-	 */
-	if (right < (int)n && array[right] > array[largest])
-		largest = right;
-
-	/* Change root, if needed*/
-	if (largest != idx)
-	{
-		swap(&array[idx], &array[largest]);
-		print_array(array, size);
-		maxHeapify(array, size, largest, n);
-	}
-}
-
-/**
- * heap_sort -  The main function to sort an array of given size
- * @array: array to sort
- * @size: size of the array
- **/
 void heap_sort(int *array, size_t size)
 {
-	int i;
-	/**
-	 * Start from bottommost and rightmost internal mode and heapify all
-     * internal modes in bottom up way
-	 */
-	if (array == '\0' || size < 2)
+	size_t i;
+
+	if (!array)
 		return;
 
-	for (i = (size - 2) / 2; i >= 0; --i)
-		maxHeapify(array, size, i, size);
+	build_max_heap(array, size);
+	for (i = size; i > 1; i--)
+		sift_down(array, i, size);
+}
 
-	/**
-	* Repeat following steps while heap size is greater than 1.
-    * The last element in max heap will be the minimum element
-	*/
-	for (i = (size - 1); i > 0; --i)
+/**
+ * build_max_heap - rearrange array elements to create a max heap
+ * @array: given array
+ * @size: array's size
+ *
+ * Return: void
+ */
+void build_max_heap(int *array, size_t size)
+{
+	int i;
+
+	if (!array)
+		return;
+
+	for (i = (size / 2) - 1; i >= 0; i--)
+		heapify(array, size, i, size);
+}
+
+/**
+ * sift_down - implement sift down algorithm to sort array
+ * @array: given array
+ * @size: current array's size
+ * @arr_s: actual array's size
+ *
+ * Return: void
+ */
+void sift_down(int *array, size_t size, size_t arr_s)
+{
+	if (!array)
+		return;
+
+	/* swap first and last element */
+	swap(array, arr_s, 0, size - 1);
+
+	/* rearrange elements */
+	heapify(array, size - 1, 0, arr_s);
+}
+
+/**
+ * heapify - compare root with its children and swap if necessary
+ * @array: given array
+ * @size: current array's size
+ * @index: current root
+ * @arr_s: actual array's size
+ *
+ * Return: void
+ */
+void heapify(int *array, size_t size, size_t index, size_t arr_s)
+{
+	size_t largest, l, r;
+
+	if (!array || index >= size)
+		return;
+
+	/* find largest element in subtree*/
+	largest = index;
+
+	l = 2 * index + 1;
+	if (l < size && array[l] > array[largest])
+		largest = l;
+
+	r = 2 * index + 2;
+	if (r < size && array[r] > array[largest])
+		largest = r;
+
+	/* swap and heapify again if root is not largest */
+	if (index != largest)
 	{
-		/**
-		* The largest item in Heap is stored at the root. Replace
-		*it with the last item of the heap followed by reducing the
-		*size of heap by 1.
-		*/
-		swap(&array[0], &array[i]);
-		print_array(array, size);
-
-		/* Finally, heapify the root of tree.*/
-		maxHeapify(array, size, 0, i);
+		swap(array, arr_s, index, largest);
+		heapify(array, size, largest, arr_s);
 	}
+
+}
+
+/**
+ * swap - swaps two elemtents of an array
+ * @array: given array
+ * @size: array's size
+ * @i: first element's index
+ * @j: second element's index
+ *
+ * Return: void
+ */
+void swap(int *array, size_t size, size_t i, size_t j)
+{
+	int tmp;
+
+	if (!array || i >= size || j >= size)
+		return;
+
+	tmp = array[i];
+	array[i] = array[j];
+	array[j] = tmp;
+
+	print_array(array, size);
 }
