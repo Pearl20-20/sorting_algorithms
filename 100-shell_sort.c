@@ -1,62 +1,62 @@
 #include "sort.h"
 
 /**
- * swap - swap the positions of two elements in an array
- * @array: array of integers
- * @item1: index of the first item
- * @item2: index of the second item
+ * swap - swaps two values of array
+ * @array: the array
+ * @i: first element's index
+ * @j: second element's index
+ *
+ * Return: void
  */
-void swap(int *array, int item1, int item2)
+void swap(int *array, long int i, long int j)
 {
-	/* Store the value of the first item in a temporary variable */
-	int tmp = array[item1];
+	int tmp;
 
-	/* Set the value of the first item to the value of the second item */
-	array[item1] = array[item2];
+	if (!array)
+		return;
 
-	/* Set the value of the second item to the value of the temporary variable */
-	array[item2] = tmp;
+	tmp = array[i];
+	array[i] = array[j];
+	array[j] = tmp;
 }
 
 /**
- * shell_sort - sort an array of integers in ascending order using the Shell sort algorithm
- * @array: array of integers
- * @size: size of the array
+ * shell_sort - sorts array of integers in ascending order
+ * @array: given array
+ * @size: size of array
+ *
+ * Description: this function sorts an array of integers
+ * in increasing order using the Shell sort algorithm
+ *
+ * Return: void
  */
 void shell_sort(int *array, size_t size)
 {
-	/* Initialize the gap variable to 1 */
-	size_t gap = 1;
+	long int h, next, i, j;
 
-	/* Initialize the index variable to 0 */
-	size_t index = 0;
-
-	/* If the array is NULL or the size is less than 2, return */
-	if (array == NULL || size < 2)
+	if (array == NULL || (size == 1))
 		return;
 
-	/* Calculate the initial gap value using the Knuth sequence */
-	while (gap < size / 3)
-		gap = 3 * gap + 1;
-
-	/* Loop through the gap sequence */
-	while (gap >= 1)
+	h = next = 1;
+	while ((size_t)next < size)
 	{
-		/* Loop through the array from the gap index to the end */
-		for (size_t i = gap; i < size; i++)
+		h = next;
+		next = (h * 3) + 1;
+	}
+
+	while (h >= 1)
+	{
+		for (j = h; (size_t)j < size; j++)
 		{
-			/* Loop through the array from the current index to the gap index */
-			for (index = i; index >= gap && array[index] < array[index - gap]; index -= gap)
+			for (i = j - h; i >= 0; i -= h)
 			{
-				/* Swap the current item with the item at the gap index */
-				swap(array, index, index - gap);
+				if (array[i] > array[i + h])
+					swap(array, i, i + h);
+				else
+					break;
 			}
 		}
-
-		/* Print the current state of the array */
+		h = (h - 1) / 3;
 		print_array(array, size);
-
-		/* Update the gap value */
-		gap /= 3;
 	}
 }
