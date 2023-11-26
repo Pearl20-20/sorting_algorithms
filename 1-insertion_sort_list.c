@@ -30,7 +30,7 @@ void swap_nodes(listint_t **h, listint_t **n1, listint_t *n2)
  */
 
 /*
-Time Complexity: O(n^2)
+ * Time Complexity: O(n^2)
 */
 void insertion_sort_list(listint_t **list)
 {
