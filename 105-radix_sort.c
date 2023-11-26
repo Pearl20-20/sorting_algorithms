@@ -1,85 +1,96 @@
 #include "sort.h"
-#include <stdio.h>
 #include <stdlib.h>
 
-/**
- * getMax - A utility function to get maximum value in arr[]
- * @arr: array
- * @n: size of the array
- * Return: maximum value in the array
- */
-int getMax(int *arr, int n)
-{
-    int max = arr[0];
+#define BASE 10
 
-    for (int i = 1; i < n; i++)
-    {
-        if (arr[i] > max)
-            max = arr[i];
-    }
-
-    return max;
-}
+void count_sort(int *, size_t, int);
+int largest_number(int *array, size_t size);
 
 /**
- * countSort - A function to do counting sort of arr[] according to
- * the digit represented by exp.
- * @arr: array to sort
- * @n: size of the array
- * @exp: exponent for the current digit place
- * @output: temporary output array
- */
-void countSort(int *arr, size_t n, int exp, int *output)
-{
-    int i, count[10] = { 0 };
-
-    for (i = 0; i < (int)n; i++)
-    {
-        count[(arr[i] / exp) % 10]++;
-    }
-
-    for (i = 1; i < 10; i++)
-    {
-        count[i] += count[i - 1];
-    }
-
-    for (i = n - 1; i >= 0; i--)
-    {
-        output[count[(arr[i] / exp) % 10] - 1] = arr[i];
-        count[(arr[i] / exp) % 10]--;
-    }
-
-    for (i = 0; i < (int)n; i++)
-    {
-        arr[i] = output[i];
-    }
-}
-
-/**
- * radix_sort - sorts an array of integers in ascending order using the
- * radix sort algorithm
- * @array: array to sort
- * @size: size of the array
+ * radix_sort - sorts array of integers in ascending order
+ * @array: given array
+ * @size: size of array
+ *
+ * Description: this function sorts an array of integers
+ * in increasing order using the Radix sort algorithm
+ *
+ * Return: void
  */
 void radix_sort(int *array, size_t size)
 {
-    int *output;
-    int exp, maximum;
+	int max, i;
 
-    if (array == NULL || size < 2)
-        return;
+	if (!array || (size == 1))
+		return;
 
-    maximum = getMax(array, size);
-    output = malloc(sizeof(int) * size);
-    if (output == NULL)
-        return;
-
-    for (exp = 1; maximum / exp > 0; exp *= 10)
-    {
-        countSort(array, size, exp, output);
-        print_array(array, size);
-    }
-
-    free(output);
+	max = largest_number(array, size);
+	for (i = 1; (max / i) > 0; i *= BASE)
+	{
+		count_sort(array, size, i);
+		print_array(array, size);
+	}
 }
 
+/**
+ * count_sort - sorts an array according to LSD
+ * @array: given array
+ * @size: array's size
+ * @place: to get digit to be sorted according to
+ *
+ * Return: void
+ */
+void count_sort(int *array, size_t size, int place)
+{
+	int count[BASE], d;
+	int *tmp;
+	long int i;
+
+	if (!array)
+		return;
+
+	/* set up counting array */
+	for (i = 0; i < BASE; i++)
+		count[i] = 0;
+	for (i = 0; (size_t)i < size; i++)
+	{
+		d = (array[i] / place) % BASE;
+		count[d]++;
+	}
+	for (i = 1; i < BASE; i++)
+		count[i] += count[i - 1];
+
+	/* sort elements and copy to original array */
+	tmp = malloc(sizeof(int) * size);
+	if (!tmp)
+		return;
+	for (i = size - 1; i >= 0; i--)
+	{
+		d = (array[i] / place) % BASE;
+		tmp[(count[d]--) - 1] = array[i];
+	}
+	for (i = 0; (size_t)i < size; i++)
+		array[i] = tmp[i];
+	free(tmp);
+}
+
+/**
+ * largest_number - finds largest number in an array
+ * @array: given array
+ * @size: array's size
+ *
+ * Return: largest number
+ */
+int largest_number(int *array, size_t size)
+{
+	int max;
+	size_t i;
+
+	if (!array)
+		return (0);
+
+	max = array[0];
+	for (i = 1; i < size; i++)
+		if (array[i] > max)
+			max = array[i];
+	return (max);
+}
