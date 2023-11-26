@@ -1,87 +1,76 @@
 #include "sort.h"
-#include <stdio.h>
 #include <stdlib.h>
 
 /**
- * _calloc - Allocate memory for an array, using calloc
+ * largest_number - finds largest number in an array
+ * @array: given array
+ * @size: array's size
  *
- * @nmemb: Number of elements to allocate
- * @size: Size of each element
- *
- * Return: Pointer to the allocated memory, or NULL if it fails
+ * Return: largest number
  */
-void *_calloc(unsigned int nmemb, unsigned int size)
+int largest_number(int *array, size_t size)
 {
-	char *ptr;
-	unsigned int i;
+	int max;
+	size_t i;
 
-	if (nmemb == 0 || size == 0)
-		return (NULL);
+	if (!array)
+		return (0);
 
-	ptr = malloc(nmemb * size);
-
-	if (ptr == NULL)
-		return (NULL);
-
-	for (i = 0; i < (nmemb * size); i++)
-		ptr[i] = 0;
-
-	return (ptr);
+	max = array[0];
+	for (i = 1; i < size; i++)
+		if (array[i] > max)
+			max = array[i];
+	return (max);
 }
 
 /**
- * counting_sort - Sort an array of integers in ascending order using the
- *                 counting sort algorithm
+ * counting_sort - sorts array of integers in ascending order
+ * @array: given array
+ * @size: size of array
  *
- * @array: The array of integers to sort
- * @size: The size of the array
+ * Description: this function sorts an array of integers
+ * in increasing order using the Counting sort algorithm
  *
- * Description: This function implements the counting sort algorithm, which
- *              sorts an array of integers by counting the number of occurrences
- *              of each value in the array, and then using those counts to
- *              construct a sorted version of the array.
+ * Return: void
  */
 void counting_sort(int *array, size_t size)
 {
-	int max = 0, i;
-	int *counts, *output;
+	int range, i, val;
+	int *counting_arr, *tmp_arr;
 
-	if (!array || size < 2)
+	if (!array || (size == 1))
 		return;
 
-	/* Find the maximum element in the array */
-	for (i = 0; i < (int)size; i++)
-		if (array[i] > max)
-			max = array[i];
-
-	/* Allocate memory for the counts and output arrays */
-	counts = _calloc(max + 1, sizeof(int));
-	output = _calloc(size, sizeof(int));
-
-	if (!counts || !output)
+	/* set up counting array */
+	range = largest_number(array, size);
+	counting_arr = malloc(sizeof(int) * (++range));
+	if (!counting_arr)
 		return;
+	for (i = 0; i < range; i++)
+		counting_arr[i] = 0;
 
-	/* Count the occurrences of each value in the array */
 	for (i = 0; i < (int)size; i++)
-		counts[array[i]]++;
+		counting_arr[array[i]]++;
 
-	/* Compute the cumulative counts */
-	for (i = 1; i <= max; i++)
-		counts[i] += counts[i - 1];
+	for (i = 0; i < (range - 1); i++)
+		counting_arr[i + 1] += counting_arr[i];
+	print_array(counting_arr, range);
 
-	/* Use the counts to place each element in the output array */
-	for (i = (int)size - 1; i >= 0; i--)
+	/* sort elements and copy to original array */
+	tmp_arr = malloc(sizeof(int) * size);
+	if (!tmp_arr)
 	{
-		output[counts[array[i]] - 1] = array[i];
-		counts[array[i]]--;
+		free(counting_arr);
+		return;
 	}
-
-	/* Copy the sorted elements back to the original array */
 	for (i = 0; i < (int)size; i++)
-		array[i] = output[i];
+	{
+		val = array[i];
+		tmp_arr[(counting_arr[val]--) - 1] = val;
+	}
+	for (i = 0; i < (int)size; i++)
+		array[i] = tmp_arr[i];
 
-	/* Free the temporary memory */
-	free(counts);
-	free(output);
+	free(counting_arr);
+	free(tmp_arr);
 }
-
